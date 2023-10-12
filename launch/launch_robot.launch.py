@@ -35,7 +35,7 @@ def generate_launch_description():
             parameters=[twist_mux_params],
             remappings=[('/cmd_vel_out','/diff_cont/cmd_vel_unstamped')]
         )
-
+    ekf_params_file = os.path.join(get_package_share_directory(package_name), 'config/ekf.yaml')
     robot_description = Command(['ros2 param get --hide-type /robot_state_publisher robot_description'])
 
     controller_params_file = os.path.join(get_package_share_directory(package_name),'config','my_controllers.yaml')
@@ -46,7 +46,12 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description},
                     controller_params_file]
     )
-
+    # Start robot localization using an Extended Kalman Filter
+    start_robot_localization_cmd = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        parameters=[ekf_params_file])
+    
     delayed_controller_manager = TimerAction(period=3.0, actions=[controller_manager])
 
     diff_drive_spawner = Node(
@@ -75,11 +80,25 @@ def generate_launch_description():
         )
     )
 
+    imu_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["imu_broadcaster"],
+    )
+
+    delayed_imu_broadcaster_spawner = RegisterEventHandler(
+        event_handler=OnProcessStart(
+            target_action=controller_manager,
+            on_start=[imu_broadcaster_spawner],
+        )
+    )
     # Launch them all!
     return LaunchDescription([
         rsp,
         twist_mux,
+        start_robot_localization_cmd,
         delayed_controller_manager,
         delayed_diff_drive_spawner,
-        delayed_joint_broad_spawner
+        delayed_joint_broad_spawner,
+        delayed_imu_broadcaster_spawner
     ])

@@ -38,7 +38,7 @@
 
   <!-- Camera -->
   <joint name="camera_joint" type="fixed">
-    <parent link="base_link" />
+    <parent link="chassis_link" />
     <child link="camera_link" />
     <origin xyz="${wheel_offset_x} 0 ${wheel_offset_z}" rpy="0 0 0"/>
   </joint>
@@ -231,7 +231,7 @@
       <depthUpdateRate>60.0</depthUpdateRate>
       <colorUpdateRate>60.0</colorUpdateRate>
       <infraredUpdateRate>60.0</infraredUpdateRate>
-      <depthTopicName>depth/image_rect_raw</depthTopicName>
+      <depthTopicName>aligned_depth_to_color/image_raw</depthTopicName>
       <depthCameraInfoTopicName>depth/camera_info</depthCameraInfoTopicName>
       <colorTopicName>color/image_raw</colorTopicName>
       <colorCameraInfoTopicName>color/camera_info</colorCameraInfoTopicName>
@@ -244,7 +244,7 @@
       <rangeMinDepth>0.2</rangeMinDepth>
       <rangeMaxDepth>10.0</rangeMaxDepth>
       <pointCloud>true</pointCloud>
-      <pointCloudTopicName>depth/points</pointCloudTopicName>
+      <pointCloudTopicName>depth/color/points</pointCloudTopicName>
       <pointCloudCutoff>0.5</pointCloudCutoff>
     </plugin>
   </gazebo>
